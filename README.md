@@ -1,5 +1,5 @@
 # Invisible Chat
-This is a message encrypter for ![Powercord](https://github.com/powercord-org/powercord)
+This is a message encrypter for [Powercord](https://github.com/powercord-org/powercord "Powercord Website")
 
 ## Install Me
 First `cd` into your powercord plugin directory.
