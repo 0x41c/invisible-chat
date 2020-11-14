@@ -9,7 +9,7 @@ powercord/src/Powercord/plugins
 ```
 then run this:
 ```console
-git clone https://github.com/powercord-community/image-talk
+git clone https://github.com/powercord-community/invisible-chat
 ```
 ## How I work:
 
