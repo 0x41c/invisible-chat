@@ -140,6 +140,7 @@ module.exports = class InviChat extends Plugin {
     async pluginWillUnload() {
         uninject('invichat-button')
         powercord.api.commands.unregisterCommand('invichat');
+        powercord.api.settings.unregisterSettings('invichat')
     }
 
 }
