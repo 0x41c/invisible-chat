@@ -1,5 +1,5 @@
 const { Plugin } = require('powercord/entities')
-const { getModule, React } = require('powercord/webpack')
+const { getModule, React, constants: { Permissions: { SEND_MESSAGES } } } = require('powercord/webpack')
 const { inject, uninject } = require('powercord/injector');
 const Settings = require('./components/Settings')
 const { handler } = require('./commands/invichat')
@@ -61,6 +61,9 @@ module.exports = class InviChat extends Plugin {
         await this.import('createBotMessage');                                                             //
         await this.import([ 'getLastSelectedChannelId' ], 'getChannelId');                                 //
         await this.import('receiveMessage');                                                               //
+        await this.import('getChannel');                                                                   //
+        await this.import('getCurrentUser');                                                               //
+        await this.import(['can', 'canEveryone'], 'can');                                                  //
     }                                                                                                      //
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -117,6 +120,7 @@ module.exports = class InviChat extends Plugin {
         );
 
         inject("invichat-button", ChannelTextAreaContainer.type, "render", (args, res) => {
+            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(this.getChannelId()))) return res
             const props = findInReactTree(res, r => r && r.className && r.className.indexOf("buttons-") === 0)
             const el = React.createElement("div", {
                 className: ".send-invisible-message",
