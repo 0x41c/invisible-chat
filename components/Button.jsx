@@ -1,4 +1,4 @@
-// Everything in this file other then the first path and the tooltip message is attributed to the plugin "Send Button" https://github.com/Sidemen19/send-button
+// Some attribution to https://github.com/Sidemen19/send-button
 const {
     React,
     getModuleByDisplayName,
