@@ -27,7 +27,7 @@ module.exports = class ModalComposer extends React.Component {
     }
 
     inputted() {
-        if (this.state.secret != "" && this.state.cover != "" && this.state.password != "") {
+        if (this.state.secret != "" && this.state.cover.split(' ').length >= 2 && this.state.password != "") {
             this.setState({inputted: true})
         } else {
             this.setState({inputted: false})
@@ -73,7 +73,7 @@ module.exports = class ModalComposer extends React.Component {
                             return "#FF0000"
                         }
                     })()}}>
-                        Message Cover
+                        Message Cover (More then two words)
                     </TextAreaInput>
                     <TextAreaInput value={this.state.password} onChange={async (m) => { await this.setState({password: m}); this.inputted()}} rows={1}>
                         Encryption Password

@@ -17,7 +17,7 @@ module.exports = class Settings extends React.Component {
             <div>
             <FormTitle>Command Settings</FormTitle>
             <SwitchItem note='Whether the "invichat" command should automatically send the encrypted message' value={ getSetting('send', false) } onChange={() => toggleSetting('send')}>
-                Auto Send
+                Auto Send [{getSetting('send', false) ? "On" : "Off"}]
             </SwitchItem>
             </div>
         )
