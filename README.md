@@ -25,5 +25,9 @@ git clone https://github.com/powercord-community/invisible-chat
 // Documentation coming soon
 ```
 
+## Contributing!
+
+Please look at the [todo readme](TODO.md) for things you can do to help!
+
 ### Disclaimer
 Decryption is not finished yet... so this plugin is kinda useless until I finish this
