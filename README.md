@@ -19,7 +19,7 @@ git clone https://github.com/powercord-community/invisible-chat
 .invichat -m [hidden message] -c [camo message] -u [userID or custom key]
 ```
 
-## GUI
+### GUI
 
 ```javascript
 // Documentation coming soon
