@@ -2,8 +2,8 @@
 This is a message encrypter for [Powercord](https://github.com/powercord-org/powercord "Powercord Website")
 
 ## Install Me
-First `cd` into your powercord plugin directory.
-the folder you wan't from the base of the powercord installation is
+First `cd` into your powercord plugin directory, then
+the folder you want to clone into is
 ```
 powercord/src/Powercord/plugins
 ```
