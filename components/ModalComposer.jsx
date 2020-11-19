@@ -83,7 +83,7 @@ module.exports = class ModalComposer extends React.Component {
                     }}>
                         HMAC Encryption
                     </SwitchItem>
-                    {errorElement}
+                    {/*errorElement*/}
                 </Modal.Content>
 
                 <Modal.Footer>

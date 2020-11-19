@@ -109,8 +109,7 @@ module.exports = class InviChat extends Plugin {
         })
     }
 
-    inject() {
-        this.log(React.createElement(ModalComposer))
+    async inject() {
         const ChannelTextAreaContainer = getModule(
             m =>
                 m.type &&
@@ -118,27 +117,87 @@ module.exports = class InviChat extends Plugin {
                 m.type.render.displayName === "ChannelTextAreaContainer",
             false
         );
-
+        const ChannelEditorContainer = await getModule(
+            m =>
+            m.default &&
+            m.default.displayName == "ChannelEditorContainer"
+        )
         inject("invichat-button", ChannelTextAreaContainer.type, "render", (args, res) => {
-            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(this.getChannelId()))) return res
+            const id = this.getChannelId()
+            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(id)) || res.props.type == "edit") return res
+            // settings stuff
+            if (!this.settings.get(id)) {
+                this.settings.set(id, {
+                    composerType: "Modal",
+                    unsubmitted: false,
+                    state: {
+                        cover: "",
+                        secret: "",
+                        passwordObj: (() => {
+                            if (this.settings.get('passwordList') && this.settings.get('passwordList').length > 0 && this.settings.get(`${id}-randomPassword`)) {
+                                const items = this.settings.get('passwordList')
+                                return {
+                                    password: items[Math.floor(Math.random() * items.length)],
+                                    temporary: true
+                                }
+                            } else {
+                                return {
+                                    password: ""
+                                }
+                            }
+                        })(),
+                    }
+                })
+            }
             const props = findInReactTree(res, r => r && r.className && r.className.indexOf("buttons-") === 0)
             const el = React.createElement("div", {
                 className: ".send-invisible-message",
-                onClick: () => open(ModalComposer)
+                onClick: () => {
+                    const channelSettings = this.settings.get(id)
+                    console.log(channelSettings)
+                    if (channelSettings.composerType == "Modal") {
+                        open(ModalComposer)
+                    } else if (channelSettings.composerType = "Inline") { //  A lot of code is gonna end up here
+                        console.log('reeeeeeee')
+                    }
+                }
             }, React.createElement(Button))
             props.children.unshift(el)
             return res
         })
+        this.log(ChannelEditorContainer)
+        inject("invichat-channel-placholder", ChannelEditorContainer.default.prototype, "render", (args, res) => {
+            const id = this.getChannelId()
+            const originalPlaceHolder = res.props.placeholder
+            res.props.placeholder = (() => {
+                const settings = this.settings.get(id)
+                if (settings.state.secret != "" && settings.state.cover != "" && settings.state.passwordObj.password == "") {
+                    return "Enter Encryption Password"
+                } else if (settings.state.secret != "" && settings.state.cover == "") {
+                    return "Enter Cover Message"
+                } else if (settings.state.secret == "") {
+                    return "Enter Secret Message"
+                } else {
+                    return originalPlaceHolder
+                }
+            })()
+            return res
+        })
+
+        
+
         ChannelTextAreaContainer.type.render.displayName = "ChannelTextAreaContainer"
+        ChannelEditorContainer.default.displayName = "ChannelEditorContainer"
     }
     async startPlugin() {
         await this.prepareClass()
         this.register()
-        this.inject()
+        await this.inject()
     };
 
     async pluginWillUnload() {
         uninject('invichat-button')
+        uninject('invichat-channel-placeholder')
         powercord.api.commands.unregisterCommand('invichat');
         powercord.api.settings.unregisterSettings('invichat')
     }
