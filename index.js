@@ -95,7 +95,7 @@ module.exports = class InviChat extends Plugin {
         powercord.api.commands.registerCommand({
             command: 'invichat',
             description: 'Send an invisible message',
-            usage: '{c} < -m [hidden message] -c [camo message] -u [userID or custom key] || -s [encryted message] -p password >',
+            usage: '{c} < -m [hidden message] -c [camo message] -p [password] || -s [encryted message] -p [password]>',
             executor: (args) => ({
                 send: this.settings.get('send', false),
                 result: handler(args, this)
