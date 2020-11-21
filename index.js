@@ -107,6 +107,34 @@ module.exports = class InviChat extends Plugin {
             category: this.entityID,
             render: Settings
         })
+        if (!this.settings.get('GlobalSettings')) {
+            this.settings.set('GlobalSettings', {
+                composerType: "Modal",
+                unsubmitted: false,
+                randomPassword: true,
+                guildID: "",
+                state: 
+                {
+                    cover: "",
+                    secret: "",
+                    passwordObj: (() => {
+                        if (this.settings.get('passwordList') && this.settings.get('passwordList').length > 0 && this.settings.get('GlobalSettings').randomPassword) {
+                            const items = this.settings.get('passwordList')
+                            return {
+                                password: items[Math.floor(Math.random() * items.length)],
+                                temporary: true
+                            }
+                        } else {
+                            return {
+                                password: ""
+                            }
+                        }
+                    })(),
+                    channelPlaceholder: ""
+                }
+            })
+            this.log(this.settings.get('GlobalSettings'))
+        }
     }
 
     async inject() {
@@ -117,37 +145,22 @@ module.exports = class InviChat extends Plugin {
                 m.type.render.displayName === "ChannelTextAreaContainer",
             false
         );
+        this.log(ChannelTextAreaContainer)
         const ChannelEditorContainer = await getModule(
             m =>
             m.default &&
             m.default.displayName == "ChannelEditorContainer"
         )
         inject("invichat-button", ChannelTextAreaContainer.type, "render", (args, res) => {
-            const id = this.getChannelId()
-            if(!this.can(SEND_MESSAGES, this.getCurrentUser(), this.getChannel(id)) || res.props.type == "edit") return res
+            const id = args[0].channel.id
+            this.log("Invichat Button:", args, res)
+            if((!this.can(SEND_MESSAGES, this.getCurrentUser(), args[0].channel) && !args[0].placeholder.split(' ')[1].indexOf("@") === 0) || args[0].type == "edit") return res
             // settings stuff
             if (!this.settings.get(id)) {
-                this.settings.set(id, {
-                    composerType: "Modal",
-                    unsubmitted: false,
-                    state: {
-                        cover: "",
-                        secret: "",
-                        passwordObj: (() => {
-                            if (this.settings.get('passwordList') && this.settings.get('passwordList').length > 0 && this.settings.get(`${id}-randomPassword`)) {
-                                const items = this.settings.get('passwordList')
-                                return {
-                                    password: items[Math.floor(Math.random() * items.length)],
-                                    temporary: true
-                                }
-                            } else {
-                                return {
-                                    password: ""
-                                }
-                            }
-                        })(),
-                    }
-                })
+                this.settings.set(id, Object.assign(this.settings.get('GlobalSettings'), {
+                    channelID: id,
+                    channelPlaceholder: args[0].placeholder
+                }))
             }
             const props = findInReactTree(res, r => r && r.className && r.className.indexOf("buttons-") === 0)
             const el = React.createElement("div", {
@@ -166,16 +179,30 @@ module.exports = class InviChat extends Plugin {
             return res
         })
         this.log(ChannelEditorContainer)
+
+        // Channel
         inject("invichat-channel-placholder", ChannelEditorContainer.default.prototype, "render", (args, res) => {
-            const id = this.getChannelId()
             const originalPlaceHolder = res.props.placeholder
+            //const dms = originalPlaceHolder.split(' ')[1].indexOf("@") === 0 ? true : false
+            this.log("Invichat Channel Placeholder:", args, res, originalPlaceHolder)
             res.props.placeholder = (() => {
-                const settings = this.settings.get(id)
-                if (settings.state.secret != "" && settings.state.cover != "" && settings.state.passwordObj.password == "") {
+                const settings = (() => {
+                    return Object.values(this.settings.getKeys()).map((i) => {
+                        this.log(i)
+                        const val = powercord.settings.get(i)
+                        this.log(val)
+                        if (res.props.channelId == val.channelID) {
+                            return val
+                        }
+                    })[0]
+                })()
+                this.log(settings)
+                if (!settings) return originalPlaceHolder
+                if (settings.states.secret != "" && settings.states.cover != "" && settings.states.passwordObj.password == "") {
                     return "Enter Encryption Password"
-                } else if (settings.state.secret != "" && settings.state.cover == "") {
+                } else if (settings.states.secret != "" && settings.states.cover == "") {
                     return "Enter Cover Message"
-                } else if (settings.state.secret == "") {
+                } else if (settings.states.secret != "") {
                     return "Enter Secret Message"
                 } else {
                     return originalPlaceHolder
