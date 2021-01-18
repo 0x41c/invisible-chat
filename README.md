@@ -16,8 +16,10 @@ git clone https://github.com/powercord-community/invisible-chat
 ### Command `invichat`
 *Usage*
 ```
-.invichat -m [hidden message] -c [camo message] -u [userID or custom key]
+.invichat -m [hidden message] -c [camo message] -s (encryted message) -p [password]
 ```
+() = optional <br />
+[] = required 
 
 ### GUI
 
